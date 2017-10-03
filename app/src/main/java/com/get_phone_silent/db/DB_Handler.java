@@ -84,6 +84,40 @@ public class DB_Handler extends SQLiteOpenHelper {
         return list;
     }
 
+    public ArrayList<LocationDataModel> getRegisteredLocationDataListWithEnabledStatus() {                      //Done
+        ArrayList<LocationDataModel> list = new ArrayList<LocationDataModel>();
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        Cursor cursor = db.rawQuery(DB_Member.getRegiesteredLocationDataWithEnableStatus_query(),null);
+
+        LocationDataModel model =null;
+
+        if (cursor.moveToFirst()) {
+            do {
+                model = new LocationDataModel();
+                model.setId(Integer.parseInt(cursor.getString(0)));
+                model.setAddress(cursor.getString(1));
+                model.setLatitude(cursor.getString(2));
+                model.setLongitude(cursor.getString(3));
+                model.setStatus(cursor.getString(5));
+                model.setAreaRadius(cursor.getString(4));
+
+                list.add(model);
+            } while (cursor.moveToNext());
+
+            for (int i = list.size(); i > cursor.getCount(); i--) {
+                list.remove(i);
+            }
+            cursor.close();
+        } else {
+            model = null;
+        }
+        db.close();
+
+        return list;
+    }
+
     public void updateLocationDataStatus(String status,int id) {                      //Done
         ContentValues values = new ContentValues();
         values.put(DB_Member.getColumnStatus(), status);

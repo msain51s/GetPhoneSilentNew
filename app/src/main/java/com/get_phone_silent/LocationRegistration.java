@@ -1,5 +1,6 @@
 package com.get_phone_silent;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -10,8 +11,10 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatSpinner;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -53,6 +56,8 @@ public class LocationRegistration extends AppCompatActivity implements LocationL
     Location mCurrentLocation;
     String mLastUpdateTime;
 
+    Toolbar toolbar;
+    TextView toolbarTitleText;
     EditText address_input_field, latitude_input_field, longitude_input_field;
     AppCompatSpinner distance_spinner;
     View layoutView;
@@ -77,16 +82,20 @@ public class LocationRegistration extends AppCompatActivity implements LocationL
         super.onCreate(savedInstanceState);
         startToGetLocation();
         setContentView(R.layout.activity_location_registration);
+        initToolBar();
         locationAddress = new GeocodingLocation();
         db_handler = new DB_Handler(this);
         distance_arr = getResources().getStringArray(R.array.distance_arr);
 
+        toolbarTitleText= (TextView) findViewById(R.id.toolbar_title_text);
         layoutView = findViewById(R.id.layout);
         address_input_field = (EditText) findViewById(R.id.address_input_field);
         latitude_input_field = (EditText) findViewById(R.id.latitude_input_field);
         longitude_input_field = (EditText) findViewById(R.id.longitude_input_field);
         distance_spinner = (AppCompatSpinner) findViewById(R.id.distance_spinner);
 
+
+        toolbarTitleText.setText("Location Registration");
         ArrayAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, distance_arr);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         distance_spinner.setAdapter(adapter);
@@ -106,7 +115,27 @@ public class LocationRegistration extends AppCompatActivity implements LocationL
             }
         });
     }
+    /*Method to in initialize toolbar*/
+    private void initToolBar(){
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("");
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        if (id == android.R.id.home) {
+            onBackPressed();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
     public void performGetLocation(View view) {
 
         String addressValue = address_input_field.getText().toString();
@@ -133,28 +162,31 @@ public class LocationRegistration extends AppCompatActivity implements LocationL
         new Handler().post(new Runnable() {
             @Override
             public void run() {
+                if(locationResult!=null) {
+                    String[] locationArr = locationResult.split(":");
+                    if (locationArr.length > 0) {
+                        LocationDataModel model = new LocationDataModel();
+                        model.setAddress(locationArr[0]);
+                        model.setLatitude(locationArr[1]);
+                        model.setLongitude(locationArr[2]);
+                        model.setStatus("Enable");
+                        model.setAreaRadius("100");
+                        if (!locationArr[1].equalsIgnoreCase(" ") && !locationArr[2].equalsIgnoreCase(" ")) {
+                            db_handler.insertLocationData(model);
 
-                String[] locationArr = locationResult.split(":");
-                if (locationArr.length > 0) {
-                    LocationDataModel model = new LocationDataModel();
-                    model.setAddress(locationArr[0]);
-                    model.setLatitude(locationArr[1]);
-                    model.setLongitude(locationArr[2]);
-                    model.setStatus("Enable");
-                    model.setAreaRadius("100");
-                    if(!locationArr[1].equalsIgnoreCase(" ") && !locationArr[2].equalsIgnoreCase(" ")) {
-                        db_handler.insertLocationData(model);
-
-                        Utils.showCommonAlertDialog(LocationRegistration.this, "Success", "Place Successfully registered for getting your phone silent",
-                                SweetAlertDialog.SUCCESS_TYPE);
-                    }else if(TextUtils.isEmpty(address_input_field.getText().toString())){
-                        Utils.showCommonAlertDialog(LocationRegistration.this,"Alert",
-                                "please get location by address or current location",SweetAlertDialog.NORMAL_TYPE);
+                            Utils.showCommonAlertDialog(LocationRegistration.this, "Success", "Place Successfully registered for getting your phone silent",
+                                    SweetAlertDialog.SUCCESS_TYPE);
+                        } else if (TextUtils.isEmpty(address_input_field.getText().toString())) {
+                            Utils.showCommonAlertDialog(LocationRegistration.this, "Alert",
+                                    "please get location by address or current location", SweetAlertDialog.NORMAL_TYPE);
+                        } else {
+                            Utils.showCommonAlertDialog(LocationRegistration.this, "Alert",
+                                    "Location not found,please retry after getting Location", SweetAlertDialog.NORMAL_TYPE);
+                        }
                     }
-                    else{
-                        Utils.showCommonAlertDialog(LocationRegistration.this,"Alert",
-                                "Location not found,please retry after getting Location",SweetAlertDialog.NORMAL_TYPE);
-                    }
+                }else{
+                    Utils.showCommonAlertDialog(LocationRegistration.this, "Alert",
+                            "please get location by address or current location", SweetAlertDialog.NORMAL_TYPE);
                 }
             }
         });
@@ -199,6 +231,12 @@ public class LocationRegistration extends AppCompatActivity implements LocationL
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent=new Intent();
+        setResult(121,intent);
+    }
 
     public void startToGetLocation(){
         if (!isGooglePlayServicesAvailable()) {

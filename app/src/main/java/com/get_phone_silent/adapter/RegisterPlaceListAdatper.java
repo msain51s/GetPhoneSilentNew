@@ -62,7 +62,7 @@ public class RegisterPlaceListAdatper extends RecyclerView.Adapter<RegisterPlace
         }
 
         @Override
-        public void onBindViewHolder(RegisterPlaceListAdatper.MyViewHolder holder, int position) {
+        public void onBindViewHolder(RegisterPlaceListAdatper.MyViewHolder holder, final int position) {
         final LocationDataModel model = list.get(position);
         holder.address_text.setText(model.getAddress());
         if(model.getStatus().equalsIgnoreCase("Enable"))
@@ -85,7 +85,7 @@ public class RegisterPlaceListAdatper extends RecyclerView.Adapter<RegisterPlace
             holder.deleteIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ((HomeScreen)mContext).deleteLocation(model.getId());
+                    ((HomeScreen)mContext).deleteLocation(model.getId(),position);
                 }
             });
 

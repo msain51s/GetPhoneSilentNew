@@ -2,8 +2,11 @@ package com.get_phone_silent.utility;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.nsd.NsdManager;
 import android.support.design.widget.Snackbar;
 import android.view.View;
+
+import com.get_phone_silent.LocationRegistration;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
@@ -20,7 +23,7 @@ public class Utils {
         snackbar.show();
     }
 
-    public static void showCommonAlertDialog(Context context,String title,String message,int type){
+    public static void showCommonAlertDialog(final Context context, String title, String message, int type){
             SweetAlertDialog dialog=new SweetAlertDialog(context,type);
             dialog.setTitleText(title);
             dialog.setContentText(message);
@@ -31,6 +34,8 @@ public class Utils {
                     @Override
                     public void onClick(SweetAlertDialog sDialog) {
                         sDialog.dismissWithAnimation();
+                        if(context instanceof LocationRegistration)
+                            ((LocationRegistration) context).onBackPressed();
                     }
                 });
 

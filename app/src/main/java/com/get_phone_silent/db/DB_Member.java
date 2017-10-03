@@ -75,4 +75,11 @@ public class DB_Member {
 
     public static String get_query = "Select distinct * FROM " + TABLE_LOCATION_DATA
             + " order by _id desc";
+
+    public static String getRegiesteredLocationDataWithEnableStatus_query() {
+        return getEnableStatus_query;
+    }
+
+    public static String getEnableStatus_query = "Select distinct * FROM " + TABLE_LOCATION_DATA
+            +" where "+COLUMN_STATUS+"='Enable'"+ " order by _id desc";
 }
