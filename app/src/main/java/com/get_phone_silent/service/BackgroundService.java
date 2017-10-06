@@ -32,7 +32,6 @@ public class BackgroundService extends IntentService {
     @Override
     protected void onHandleIntent( Intent intent) {
         Log.d("service start time","now");
-        synchronized (this) {
             if (db_handler != null) {
                 list = db_handler.getRegisteredLocationDataListWithEnabledStatus();
                 loc = new CurrentLocationClass(BackgroundService.this);
@@ -58,7 +57,6 @@ public class BackgroundService extends IntentService {
 
                 }
             }
-        }
     }
 
     public int calculateDistance(double lat1, double lng1, double lat2, double lng2) {
