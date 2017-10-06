@@ -3,7 +3,9 @@ package com.get_phone_silent.service;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -20,6 +22,7 @@ public class BackgroundService extends IntentService {
 
     DB_Handler db_handler;
     ArrayList<LocationDataModel> list;
+    CurrentLocationClass loc;
     public BackgroundService() {
         super("BackgroundService");
         db_handler=new DB_Handler(BackgroundService.this);
@@ -27,37 +30,35 @@ public class BackgroundService extends IntentService {
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
+    protected void onHandleIntent( Intent intent) {
         Log.d("service start time","now");
-       if(db_handler!=null){
-          list=db_handler.getRegisteredLocationDataListWithEnabledStatus();
-           CurrentLocationClass loc=new CurrentLocationClass(BackgroundService.this);
-           String location=loc.getLocation();
-           if(location!=null) {
-               String[] locationArr = location.split(",");
-               double currentLat=Double.parseDouble(locationArr[0]);
-               double currentLng=Double.parseDouble(locationArr[1]);
-               boolean isInRadius=false;
-               if (list.size() > 0) {
-                   for(LocationDataModel model : list){
-                       if((calculateDistance(currentLat,currentLng,Double.parseDouble(model.getLatitude()),Double.parseDouble(model.getLongitude())))<=Integer.parseInt(model.getAreaRadius())){
-                                   isInRadius=true;
-                           break;
-                       }
-                   }
+        synchronized (this) {
+            if (db_handler != null) {
+                list = db_handler.getRegisteredLocationDataListWithEnabledStatus();
+                loc = new CurrentLocationClass(BackgroundService.this);
+                String location = loc.getLocation();
+                if (location != null) {
+                    String[] locationArr = location.split(",");
+                    double currentLat = Double.parseDouble(locationArr[0]);
+                    double currentLng = Double.parseDouble(locationArr[1]);
+                    boolean isInRadius = false;
+                    if (list.size() > 0) {
+                        for (LocationDataModel model : list) {
+                            if ((calculateDistance(currentLat, currentLng, Double.parseDouble(model.getLatitude()), Double.parseDouble(model.getLongitude()))) <= Integer.parseInt(model.getAreaRadius())) {
+                                isInRadius = true;
+                                break;
+                            }
+                        }
 
-                   AudioManager am = (AudioManager) getBaseContext().getSystemService(Context.AUDIO_SERVICE);
-                   if(isInRadius) {
-                       //For Silent mode
-                       am.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                   }else{
-                       //For Normal mode
-                       am.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-                   }
-               }
+                        Intent intent1 = new Intent("phone_silent");
+                        intent.putExtra("isSilent", isInRadius);
+                        sendBroadcast(intent1);
 
-           }
-       }
+                    }
+
+                }
+            }
+        }
     }
 
     public int calculateDistance(double lat1, double lng1, double lat2, double lng2) {
@@ -74,4 +75,6 @@ public class BackgroundService extends IntentService {
         return dist;
 
     }
+
+
 }

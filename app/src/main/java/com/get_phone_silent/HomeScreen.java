@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.net.nsd.NsdManager;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -42,6 +43,11 @@ public class HomeScreen extends AppCompatActivity {
         recyclerView= (RecyclerView) findViewById(R.id.register_place_recyclerView);
         initializeList();
         scheduleAlarm();
+
+       /* AudioManager am = (AudioManager) getBaseContext().getSystemService(Context.AUDIO_SERVICE);
+
+            am.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);*/
+
     }
 
     /*Method to in initialize toolbar*/
@@ -105,7 +111,7 @@ public class HomeScreen extends AppCompatActivity {
         }
     }
 
-    // Setup a recurring alarm every 15 seconds
+    // Setup a recurring alarm every 30 seconds
     public void scheduleAlarm() {
         // Construct an intent that will execute the AlarmReceiver
         Intent intent = new Intent(getApplicationContext(), MyAlarmReceiver.class);
@@ -118,6 +124,6 @@ public class HomeScreen extends AppCompatActivity {
         // First parameter is the type: ELAPSED_REALTIME, ELAPSED_REALTIME_WAKEUP, RTC_WAKEUP
         // Interval can be INTERVAL_FIFTEEN_MINUTES, INTERVAL_HALF_HOUR, INTERVAL_HOUR, INTERVAL_DAY
         alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis,
-                15000, pIntent);
+                30000, pIntent);
     }
 }

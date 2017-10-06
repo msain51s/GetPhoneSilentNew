@@ -3,7 +3,6 @@ package com.get_phone_silent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.os.Handler;
 import android.os.Message;
@@ -35,11 +34,9 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
@@ -65,7 +62,7 @@ public class LocationRegistration extends AppCompatActivity implements LocationL
     String[] distance_arr;
     Location loc;
     GeocodingLocation locationAddress;
-    String locationResult;
+    String locationResult, selectedAreaRadius;
     double currentLatitude,currentLongitude;
 
     DB_Handler db_handler;
@@ -104,9 +101,7 @@ public class LocationRegistration extends AppCompatActivity implements LocationL
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
 
-                String selectedDistance = distance_arr[position];
-                Toast.makeText(LocationRegistration.this, selectedDistance + " meter", Toast.LENGTH_SHORT).show();
-
+                selectedAreaRadius = distance_arr[position];
             }
 
             @Override
@@ -170,7 +165,7 @@ public class LocationRegistration extends AppCompatActivity implements LocationL
                         model.setLatitude(locationArr[1]);
                         model.setLongitude(locationArr[2]);
                         model.setStatus("Enable");
-                        model.setAreaRadius("100");
+                        model.setAreaRadius(selectedAreaRadius);
                         if (!locationArr[1].equalsIgnoreCase(" ") && !locationArr[2].equalsIgnoreCase(" ")) {
                             db_handler.insertLocationData(model);
 

@@ -3,6 +3,7 @@ package com.get_phone_silent.service;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
@@ -144,5 +145,6 @@ public class CurrentLocationClass implements LocationListener,
                 mGoogleApiClient, this);
         Log.d(TAG, "Location update stopped .......................");
     }
+
 
 }

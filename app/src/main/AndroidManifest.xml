@@ -7,6 +7,10 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
 
     <application
         android:allowBackup="true"
@@ -34,6 +38,13 @@
         <receiver
             android:name=".service.MyAlarmReceiver"
             android:process=":remote" >
+        </receiver>
+
+        <receiver android:name=".service.PhoneSilentReceiver" android:enabled="true">
+            <intent-filter>
+                <action android:name="phone_silent" />
+                <!-- and some more actions if you want -->
+            </intent-filter>
         </receiver>
 
         <service
